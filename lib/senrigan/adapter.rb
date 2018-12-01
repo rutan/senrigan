@@ -26,7 +26,6 @@ module Senrigan
         begin
           @rtm = ::Slack::RealTime::Client.new
           @rtm.on(:message, &method(:on_message))
-          @rtm.on(:close, &method(:on_close))
           @rtm.start!
         rescue StandardError => e
           STDOUT.puts e.inspect if ENV['DEBUG'].to_i != 0
@@ -205,10 +204,6 @@ module Senrigan
       end
       text.gsub!(/\!(here|channel|group)/, '@\1')
       CGI.unescapeHTML(text)
-    end
-
-    def on_close(message)
-      puts message.inspect
     end
   end
 end
