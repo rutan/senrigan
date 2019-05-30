@@ -70,7 +70,7 @@ module Senrigan
         data =
           case channel_id.first
           when 'C'
-            resp = @client.channels_info(
+            resp = @client.conversations_info(
               channel: channel_id
             )
             resp['channel']
