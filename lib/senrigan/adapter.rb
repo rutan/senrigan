@@ -29,6 +29,8 @@ module Senrigan
           @rtm.start!
         rescue StandardError => e
           STDOUT.puts e.inspect if ENV['DEBUG'].to_i != 0
+        ensure
+          @rtm.stop! rescue nil
         end
         sleep 5
       end
