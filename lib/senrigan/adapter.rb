@@ -90,10 +90,10 @@ module Senrigan
 
     def on_message(msg)
       entity =
-        case
-        when msg.subtype == 'message_changed'
+        case msg.subtype
+        when 'message_changed'
           create_message_change_event_entity(msg)
-        when msg.subtype.nil?, msg.subtype == 'bot_message'
+        when nil, 'bot_message', 'me_message'
           create_message_entity(msg)
         end
       return unless entity
