@@ -60,7 +60,7 @@ module Senrigan
         resp = @client.users_info(
           user: user_id
         )
-        resp['channel'] || OpenStruct.new
+        resp['user'] || OpenStruct.new
       end
     end
 
@@ -156,7 +156,7 @@ module Senrigan
         )
       when msg.user, msg.message&.user
         user = fetch_user(msg.user || msg.message.user)
-        name = [user&.profile&.display_name, user&.name, msg.user].find { |n| !n.nil? && !n.empty? }
+        name = user ? pick_name_from_user(user) : msg.user
         Entities::User.new(
           name: name.to_s,
           is_bot: user&.is_bot
@@ -166,14 +166,20 @@ module Senrigan
       end
     end
 
+    def pick_name_from_user(user)
+      return '' unless user
+      return user.profile.display_name if user.profile&.display_name
+      user.name.to_s
+    end
+
     def format_text(src_text)
       text = src_text.to_s.dup
       text.gsub!(/\\b/, '')
       text.gsub!(/\<\@(U[^>\|]+)\>/) do
-        "@#{fetch_user(Regexp.last_match(1)).name}"
+        "@#{pick_name_from_user(fetch_user(Regexp.last_match(1)))}"
       end
       text.gsub!(/\<\@(U[^\|]+)\|([^>]+)\>/) do
-        "@#{fetch_user(Regexp.last_match(1)).name}"
+        "@#{pick_name_from_user(fetch_user(Regexp.last_match(1)))}"
       end
       text.gsub!(/\<\#(C[^>\|]+)\>/) do
         "##{fetch_channel(Regexp.last_match(1)).name}"
