@@ -51,10 +51,7 @@ module Senrigan
     end
 
     def regenerate_cache
-      @channel_caches = (
-          @client.channels_list['channels'] +
-          @client.groups_list['groups']
-        ).map { |c| [c['id'], c] }.to_h
+      @channel_caches = {}
       @user_caches = @client.users_list['members'].map { |u| [u['id'], u] }.to_h
     end
 
@@ -69,21 +66,7 @@ module Senrigan
 
     def fetch_channel(channel_id)
       @channel_caches[channel_id] ||= begin
-        data =
-          case channel_id.first
-          when 'C'
-            resp = @client.conversations_info(
-              channel: channel_id
-            )
-            resp['channel']
-          when 'G'
-            resp = @client.groups_info(
-              channel: channel_id
-            )
-            resp['group']
-          else
-            OpenStruct.new(name: channel_id, is_private: true)
-          end
+        data = @client.conversations_info(channel: channel_id)['channel']
         data || OpenStruct.new(name: channel_id, is_private: false)
       end
     end
